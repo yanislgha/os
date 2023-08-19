@@ -31,7 +31,7 @@ ebr_signature: db  29h
 ebr_volume_id: db 12h, 34h, 56h, 78h
 ebr_volume_label: db 'YANQUOTE OS'
 ebr_system_id: db 'FAT12   '
-; 12:34
+; 24:26
 
 start:
     jmp main
@@ -75,6 +75,7 @@ main:
     ; finally print message
     mov si, msg_hello
     call puts
+    cli
     hlt
 
 floppy_error:
@@ -139,15 +140,15 @@ disk_read:
     jnz .retry
 
 .fail:
-    jmp floppy_err
+    jmp floppy_error
 
 .done:
     popa
-    push di
-    push dx
-    push cx
-    push bx
-    push ax
+    pop di
+    pop dx
+    pop cx
+    pop bx
+    pop ax
     ret
 
 disk_reset:
@@ -156,10 +157,12 @@ disk_reset:
     stc
     int 13h
     jc floppy_error
-    popa ret
+    popa 
+    ret
 
 msg_hello: db "Hello world!", ENDL, 0
 msg_read_failed: db "Failed to read floppy disk !", ENDL, 0
-times 510-($-$$) db 0
 
+
+times 510-($-$$) db 0
 dw 0AA55h
