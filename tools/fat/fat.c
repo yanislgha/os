@@ -33,8 +33,25 @@ typedef struct {
     uint8_t SystemId[8];
 } __attribute__((packed)) BootSector;
 
+typedef struct 
+{
+    uint8_t Name[11];
+    uint8_t Attributes;
+    uint8_t _Reserved;
+    uint8_t CreatedTimeTenths;
+    uint16_t CreatedTime;
+    uint16_t CreatedDate;
+    uint16_t AccessedDate;
+    uint16_t FirstClusterHigh;
+    uint16_t ModifiedTime;
+    uint16_t ModifiedDate;
+    uint16_t FirstClusterLow;
+    uint32_t Size;
+} __attribute__((packed)) DirectoryEntry;
+
 BootSector g_BootSector;
 uint8_t g_Fat = NULL;
+DirectoryEntry* g_RootDirectory = NULL; // 17:10
 bool readBootSector(FILE* disk) {
     return fread(&g_BootSector, sizeof(g_BootSector), 1, disk);
 }
@@ -48,6 +65,7 @@ bool readSector(FILE* disk, uint32_t lba, uint32_t count, void* bufferOut) {
 
 bool readFat(FILE* disk) {
      g_Fat = (uint8_t*) malloc(g_BootSector.SectorsPerFat *  g_BootSector.BytesPerSector);
+     return readSector(disk, g_BootSector.ReservedSectors, g_BootSector.SectorsPerFat, g_Fat);
 }
 
 int main(int argc, char** argv) {
@@ -67,5 +85,12 @@ int main(int argc, char** argv) {
         return -2;
     }
 
+    if(!readFat(disk)) {
+        fprintf(stderr, "Unable to read fat!");
+        free(g_Fat);
+        return -3;
+    }
+    
+    free(g_Fat);
     return 0;
 }
