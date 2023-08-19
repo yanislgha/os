@@ -69,7 +69,8 @@ main:
     mov [ebr_drive_number], dl
     mov ax, 1
     mov cl, 1
-    mov bx, 0x7C00
+    mov bx, 0x7E00 
+    call disk_read
 
     ; finally print message
     mov si, msg_hello
