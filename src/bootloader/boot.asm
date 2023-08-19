@@ -31,7 +31,7 @@ ebr_signature: db  29h
 ebr_volume_id: db 12h, 34h, 56h, 78h
 ebr_volume_label: db 'YANQUOTE OS'
 ebr_system_id: db 'FAT12   '
-
+; 12:34
 
 start:
     jmp main
